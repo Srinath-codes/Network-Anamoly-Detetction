@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <h1>EnsembleGuard</h1>
+            <p class="description">
+                <strong>Project Objective:</strong> To provide a robust, AI-powered layer of defense against modern network threats. 
+                EnsembleGuard leverages high-performance machine learning to monitor, detect, and classify anomalies in real-time, 
+                ensuring system integrity and data security.
+            </p>
+            <p class="description" style="font-size: 0.95rem; margin-top: 1rem; opacity: 0.8;">
+                Using an ensemble of Random Forest, XGBoost, LightGBM, and CatBoost, 
+                we detect malicious traffic with 99%+ accuracy.
+            </p>
+            <a href="/detect" class="btn" style="display: inline-block;">Start Detection Scan</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+            <div class="glass-card" style="padding: 1.5rem; text-align: left;">
+                <h3 style="color: var(--success); margin-bottom: 0.5rem;">✅ Normal</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Safe, legitimate network activity. Correct behavior of users and services.</p>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; text-align: left;">
+                <h3 style="color: var(--danger); margin-bottom: 0.5rem;">🔥 DoS</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Denial of Service. Overloading a system to make it crash or unavailable.</p>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; text-align: left;">
+                <h3 style="color: #f59e0b; margin-bottom: 0.5rem;">🔍 Probe</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Network scanning to find active ports or system vulnerabilities.</p>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; text-align: left;">
+                <h3 style="color: #a855f7; margin-bottom: 0.5rem;">📦 R2L</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Remote to Local. Unauthorized remote access to local computer accounts.</p>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; text-align: left;">
+                <h3 style="color: #ec4899; margin-bottom: 0.5rem;">🔑 U2R</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">User to Root. Exploiting a system to gain admin (root) privileges.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

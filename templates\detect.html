@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card">
+            <h2>Analyze Network Traffic</h2>
+            <p class="description">Input network feature values to get an immediate prediction from our ensemble model.
+            </p>
+
+            <form action="/detect" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Protocol Type</label>
+                        <select name="protocol_type" required>
+                            {% for p in protocols %}
+                            <option value="{{ p }}">{{ p.upper() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Service</label>
+                        <select name="service" required>
+                            {% for s in services %}
+                            <option value="{{ s }}">{{ s.upper() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Flag</label>
+                        <select name="flag" required>
+                            {% for f in flags %}
+                            <option value="{{ f }}">{{ f }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Src Bytes</label>
+                        <input type="number" name="src_bytes" placeholder="e.g., 491" required min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dst Bytes</label>
+                        <input type="number" name="dst_bytes" placeholder="e.g., 0" required min="0">
+                    </div>
+                </div>
+
+                <button type="button" class="toggle-btn" id="toggleBtn" onclick="toggleAdvanced()">+ Show Advanced Features</button>
+
+                <div id="advanced-section" class="advanced-section">
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                        Expert Configuration (Optional)
+                    </p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Count (Connections)</label>
+                            <input type="number" name="count" placeholder="last 2s count" required min="0" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Service Count</label>
+                            <input type="number" name="srv_count" placeholder="last 2s srv count" required min="0" value="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Same Srv Rate</label>
+                            <input type="number" step="0.01" name="same_srv_rate" placeholder="0.0 to 1.0" required min="0" max="1" value="1.0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Duration (sec)</label>
+                            <input type="number" name="duration" placeholder="e.g. 0" required min="0" value="0">
+                        </div>
+
+                        <div class="form-group" style="display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem;">
+                            <label style="margin-bottom: 0;">Logged In?</label>
+                            <input type="checkbox" name="logged_in" style="width: 20px; height: 20px;">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%;">Analyze Traffic</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleAdvanced() {
+            const section = document.getElementById('advanced-section');
+            const btn = document.getElementById('toggleBtn');
+            if (section.style.display === 'block') {
+                section.style.display = 'none';
+                btn.textContent = '+ Show Advanced Features';
+            } else {
+                section.style.display = 'block';
+                btn.textContent = '- Hide Advanced Features';
+            }
+        }
+    </script>
+</body>
+</html>

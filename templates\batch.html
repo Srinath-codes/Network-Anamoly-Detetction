@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Bulk Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .upload-zone {
+            border: 2px dashed var(--glass-border);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.02);
+        }
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        .file-info {
+            margin-top: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card">
+            <h2>Bulk Network Analysis</h2>
+            <p class="description">Upload a CSV file containing multiple network connection logs for rapid automated scanning.</p>
+
+            <form action="/batch" method="post" enctype="multipart/form-data" id="uploadForm">
+                <label for="fileInput" class="upload-zone" id="dropZone">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                    <div style="font-weight: 600; font-size: 1.2rem;">Click or Drag CSV File</div>
+                    <div class="file-info" id="fileInfo">Only .csv files supported</div>
+                    <input type="file" name="file" id="fileInput" accept=".csv" style="display: none;" required>
+                </label>
+                
+                <div style="margin-top: 2rem; background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 12px; text-align: left;">
+                    <h4 style="font-family: 'Outfit'; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--primary);">📋 Required CSV Format</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                        The CSV must include these headers: <strong>protocol_type, service, flag, src_bytes, dst_bytes, duration, logged_in, count, srv_count, same_srv_rate</strong>
+                    </p>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; margin-top: 2rem;">Start Bulk Scan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const dropZone = document.getElementById('dropZone');
+
+        fileInput.onchange = () => {
+            if (fileInput.files.length > 0) {
+                fileInfo.textContent = `Selected: ${fileInput.files[0].name}`;
+                fileInfo.style.color = 'var(--success)';
+            }
+        };
+
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--primary)';
+        };
+
+        dropZone.ondragleave = () => {
+            dropZone.style.borderColor = 'var(--glass-border)';
+        };
+
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            fileInput.onchange();
+        };
+    </script>
+</body>
+</html>

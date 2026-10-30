@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card {% if color == 'red' %}danger-pulse{% endif %}">
+            <h2>Analysis Result</h2>
+            <p class="description">Scan complete. Result based on ensemble model prediction.</p>
+            
+            <div class="result-badge {{ color }}">
+                {{ "✅ " if color == "green" else "⚠️ " }} {{ result }}
+            </div>
+            
+            <div class="confidence" style="margin-bottom: 2rem;">
+                Confidence Score: <span style="font-weight: 800; color: white;">{{ confidence }}</span>
+            </div>
+
+            {% if color == 'red' %}
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: left;">
+                <h4 style="color: var(--danger); margin-bottom: 0.5rem; font-family: 'Outfit';">🛡️ AI Security Insight</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">
+                    Detected Type: <strong style="color: white;">{{ result }}</strong><br>
+                    Primary Factor: <strong style="color: white; border-bottom: 1px solid var(--danger);">{{ top_feature }}</strong>
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="suggestion-box {{ color }}">
+                <h4>{{ "🛡️ Security Suggestions" if color == "red" else "✅ Maintenance Advice" }}</h4>
+                <ul>
+                    {% for suggestion in suggestions %}
+                    <li>{{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem; font-family: 'Outfit'; font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Individual Model Votes</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    {% for model, vote in votes.items() %}
+                    <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.75rem; font-weight: 600;">{{ model }}</span>
+                        <span class="badge-small {{ 'red' if vote != 'NORMAL' else 'green' }}" style="font-size: 0.7rem;">{{ vote }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+
+            <div style="display: flex; justify-content: space-between; gap: 1rem;">
+                <a href="/detect" class="btn" style="flex: 1; background: transparent; border: 1px solid var(--glass-border);">New Analyze</a>
+                <a href="/dashboard" class="btn" style="flex: 1;">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

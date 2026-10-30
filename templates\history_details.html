@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Entry Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 800px;">
+        <div style="margin-bottom: 2rem;">
+            <a href="/dashboard" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">&larr; Back to Dashboard</a>
+        </div>
+
+        <div class="glass-card" style="text-align: left; padding: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                <div>
+                    <span class="badge-small {{ 'green' if entry.result == 'NORMAL' else 'red' }}" style="font-size: 0.9rem; padding: 0.4rem 1rem;">
+                        {{ entry.result }} DETECTED
+                    </span>
+                    <h2 style="margin-top: 1rem; font-family: 'Outfit';">Scan Details #{{ id }}</h2>
+                    <p style="color: var(--text-muted);">Perception timestamp: {{ entry.timestamp }}</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">Confidence</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: white;">{{ entry.confidence }}</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.03); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--glass-border);">
+                <h4 style="margin-bottom: 1rem; font-family: 'Outfit'; color: var(--text-muted); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Packet Features</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div>
+                        <label>Protocol</label>
+                        <div style="color: white; font-weight: 600;">{{ entry.protocol|upper }}</div>
+                    </div>
+                    <div>
+                        <label>Service</label>
+                        <div style="color: white; font-weight: 600;">{{ entry.service|upper }}</div>
+                    </div>
+                    <div>
+                        <label>Source Bytes</label>
+                        <div style="color: white; font-weight: 600;">{{ entry.src_bytes|int }}</div>
+                    </div>
+                    <div>
+                        <label>Destination Bytes</label>
+                        <div style="color: white; font-weight: 600;">{{ entry.dst_bytes|int }}</div>
+                    </div>
+                </div>
+                
+                {% if entry.features %}
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                    <h5 style="margin: 1rem 0 0.5rem; font-size: 0.75rem; color: var(--text-muted);">Extended Metrics</h5>
+                    <div style="display: flex; flex-wrap: wrap;">
+                        {% for k, v in entry.features.items() %}
+                            {% if k not in ['protocol_type', 'service', 'src_bytes', 'dst_bytes'] %}
+                            <span class="feature-tag">{{ k|replace('_', ' ')|title }}: {{ v }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="suggestion-box {{ 'red' if entry.result != 'NORMAL' else 'green' }}">
+                <h4>{{ "🛡️ Remediation Suggestions" if entry.result != 'NORMAL' else "✅ System Health Note" }}</h4>
+                <ul>
+                    {% for suggestion in entry.suggestions %}
+                    <li>{{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="/delete/{{ id }}" class="btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);" onclick="return confirm('Permanently delete this record?')">Delete This Record</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

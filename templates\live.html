@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Live Monitoring</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass: rgba(255, 255, 255, 0.05);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            padding: 0.75rem 2rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 800; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .container { padding: 1.5rem 2rem; max-width: 1600px; margin: 0 auto; }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        .controls { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        select option { background: var(--dark); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            background: rgba(0,0,0,0.3);
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #444; }
+        .dot.active { background: var(--success); box-shadow: 0 0 10px var(--success); animation: pulse 1.5s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        .feed-container { height: 600px; overflow-y: auto; border-radius: 1rem; background: rgba(0,0,0,0.2); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 1rem; position: sticky; top: 0; background: #1e293b; color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; transition: background 0.3s; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .badge { padding: 0.25rem 0.6rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: bold; }
+        .badge-NORMAL { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .badge-DoS { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-Probe { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .badge-R2L { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        .stat-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+        .stat-card { background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; cursor: pointer; }
+        .stat-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .stat-val { font-size: 1.5rem; font-weight: 800; display: block; }
+        .stat-label { font-size: 0.75rem; color: #94a3b8; }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background: var(--dark); margin: 10% auto; padding: 2rem; border: 1px solid rgba(255,255,255,0.1); width: 80%; max-width: 800px; border-radius: 2rem; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: white; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-shield-alt"></i> EnsembleGuard <span style="font-size: 0.8rem; opacity: 0.7; color: #818cf8;">LIVE</span></div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div id="status-indicator">
+                <div class="dot" id="active-dot"></div>
+                <span id="status-text">Ready</span>
+                <span id="session-timer" style="margin-left: 0.5rem; color: var(--success); font-family: monospace; display: none; font-weight: 700;">
+                    <i class="fas fa-stopwatch"></i> <span id="elapsed-val">00:00</span>
+                </span>
+            </div>
+            <button class="btn btn-secondary" onclick="toggleMonitor('start_demo')" id="demo-btn">
+                <i class="fas fa-play"></i> Demo
+            </button>
+            <button class="btn btn-primary" onclick="toggleMonitor('start_real')" id="real-btn">
+                <i class="fas fa-microchip"></i> Real Sniff
+            </button>
+            <button class="btn btn-danger" onclick="toggleMonitor('stop')" id="stop-btn" disabled>
+                <i class="fas fa-stop"></i> Stop
+            </button>
+            <a href="/dashboard" class="btn btn-secondary"><i class="fas fa-home"></i></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+                <div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Total Packets</div>
+                <div id="total-count" style="font-size: 1.8rem; font-weight: 800; margin: 0.5rem 0;">0</div>
+                <div style="height: 4px; background: rgba(99, 102, 241, 0.2); border-radius: 2px;"><div id="total-progress" style="height: 100%; width: 0%; background: var(--primary); transition: width 0.3s;"></div></div>
+            </div>
+            <div class="stat-card">
+                <div style="color: #22c55e; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Normal Traffic</div>
+                <div id="normal-count" style="font-size: 1.8rem; font-weight: 800; margin: 0.5rem 0; color: #22c55e;">0</div>
+                <div style="font-size: 0.7rem; opacity: 0.6;">Clean Connections</div>
+            </div>
+            <div class="stat-card" onclick="showAnomalyDetails()" style="border-color: rgba(239, 68, 68, 0.3);">
+                <div style="color: var(--danger); font-size: 0.8rem; font-weight: 600; text-transform: uppercase;">Anomalies</div>
+                <div id="anomaly-count" style="font-size: 1.8rem; font-weight: 800; margin: 0.5rem 0; color: var(--danger);">0</div>
+                <div style="font-size: 0.7rem; color: var(--danger);">Review Detected Threats</div>
+            </div>
+            <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">Attack Distribution</div>
+                <canvas id="attackChart" style="max-height: 120px;"></canvas>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+            <div id="latest-alert" style="padding: 1rem 1.5rem; border-radius: 1rem; background: rgba(255,255,255,0.05); border-left: 4px solid var(--primary); transition: all 0.3s; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> Monitoring is currently inactive. Click Start to begin stream.
+            </div>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;">
+                    <span style="font-weight: 700; color: #94a3b8;"><i class="fas fa-list"></i> LIVE TRAFFIC LOG</span>
+                    <div style="display: flex; gap: 1.5rem;">
+                        <a href="/live_history" style="font-size: 0.8rem; color: #4ade80; text-decoration: none;"><i class="fas fa-history"></i> Live History</a>
+                        <a href="/demo_history" style="font-size: 0.8rem; color: #818cf8; text-decoration: none;"><i class="fas fa-vial"></i> Demo History</a>
+                    </div>
+                </div>
+                <div class="feed-container" style="height: 550px;">
+                    <table id="packet-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Endpoints</th>
+                                <th>Protocol</th>
+                                <th>Service</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packet-body">
+                            <!-- Live packets injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <div id="solutionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Detailed Analysis</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <span id="modalResult" class="solution-badge">LIVE</span>
+                    <p id="modalTime" style="color: var(--text-muted); margin-top: 1rem;"></p>
+                </div>
+                
+                <div class="solution-grid">
+                    <div class="solution-item">
+                        <label>Protocol</label>
+                        <div id="modalProto">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Service</label>
+                        <div id="modalService">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Src IP</label>
+                        <div id="modalSrcIP" style="color: #818cf8;">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Dst IP</label>
+                        <div id="modalDstIP" style="color: #c084fc;">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Bytes (Src)</label>
+                        <div id="modalSrc">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>AI Confidence</label>
+                        <div id="modalConfidence" style="color: var(--primary);">-</div>
+                    </div>
+                </div>
+
+                <div id="techGuide" class="technician-guide">
+                    <h4><i class="fas fa-microchip"></i> Technician's Solution Guide</h4>
+                    <ul id="suggestionList">
+                        <!-- Suggestions here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let totalCount = 0;
+        let anomalyCount = 0;
+        let attackCounts = { 'NORMAL': 0, 'DoS': 0, 'Probe': 0, 'R2L': 0, 'U2R': 0 };
+        let sessionAnomalies = []; 
+        let countdownInterval;
+        let elapsedInterval;
+        let startTime;
+
+        // Initialize Chart
+        const ctx = document.getElementById('attackChart').getContext('2d');
+        const attackChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Normal', 'DoS', 'Probe', 'R2L', 'U2R'],
+                datasets: [{
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: ['#22c55e', '#ef4444', '#a855f7', '#f59e0b', '#3b82f6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { 
+                    legend: { 
+                        display: true,
+                        position: 'bottom',
+                        labels: { 
+                            color: '#94a3b8',
+                            usePointStyle: true,
+                            font: { size: 10 }
+                        }
+                    } 
+                },
+                cutout: '70%',
+                maintainAspectRatio: false
+            }
+        });
+
+        function toggleMonitor(action) {
+            // UI Feedback
+            if (action === 'stop') {
+                document.getElementById('stop-btn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Stopping...';
+                document.getElementById('stop-btn').disabled = true;
+            }
+            
+            socket.emit('toggle_monitor', { action: action });
+        }
+
+        socket.on('status', (data) => {
+            const dot = document.getElementById('active-dot');
+            const statusText = document.getElementById('status-text');
+            const demoBtn = document.getElementById('demo-btn');
+            const realBtn = document.getElementById('real-btn');
+            const stopBtn = document.getElementById('stop-btn');
+            const sessionTimer = document.getElementById('session-timer');
+            const elapsedVal = document.getElementById('elapsed-val');
+
+            if (data.active) {
+                dot.classList.add('active');
+                statusText.innerText = `Active (${data.mode})`;
+                demoBtn.disabled = true;
+                realBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                // Elapsed Timer
+                sessionTimer.style.display = 'inline-block';
+                startTime = Date.now();
+                clearInterval(elapsedInterval);
+                elapsedInterval = setInterval(() => {
+                    const diff = Math.floor((Date.now() - startTime) / 1000);
+                    const m = Math.floor(diff / 60).toString().padStart(2, '0');
+                    const s = (diff % 60).toString().padStart(2, '0');
+                    elapsedVal.innerText = `${m}:${s}`;
+                }, 1000);
+
+                // Update Active Banner text
+                document.getElementById('latest-alert').innerHTML = `<i class="fas fa-satellite-dish fa-fade"></i> Monitoring Online (${data.mode}). Listening for real-time network traffic...`;
+                document.getElementById('latest-alert').style.borderLeftColor = '#22c55e'; // success green
+            } else {
+                dot.classList.remove('active');
+                statusText.innerText = data.msg || 'Inactive';
+                demoBtn.disabled = false;
+                realBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopBtn.innerHTML = '<i class="fas fa-stop"></i> Stop'; 
+                sessionTimer.style.display = 'none';
+                clearInterval(elapsedInterval);
+
+                // Reset Banner text
+                document.getElementById('latest-alert').innerHTML = `<i class="fas fa-info-circle"></i> Monitoring is currently inactive. Click Start to begin stream.`;
+                document.getElementById('latest-alert').style.borderLeftColor = 'var(--primary)';
+            }
+        });
+
+        socket.on('new_detection', (data) => {
+            totalCount++;
+            document.getElementById('total-count').innerText = totalCount;
+            
+            // Progress Bar Logic (resets every 100 packets for visual effect)
+            const progress = (totalCount % 100);
+            document.getElementById('total-progress').style.width = progress + '%';
+
+            if (data.result === 'NORMAL') {
+                const normalCount = parseInt(document.getElementById('normal-count').innerText) + 1;
+                document.getElementById('normal-count').innerText = normalCount;
+            } else {
+                anomalyCount++;
+                document.getElementById('anomaly-count').innerText = anomalyCount;
+                
+                // Save to session anomalies
+                sessionAnomalies.push({
+                    time: data.timestamp,
+                    src_ip: data.src_ip,
+                    dst_ip: data.dst_ip,
+                    type: data.result,
+                    service: data.service,
+                    confidence: data.confidence,
+                    suggestions: data.suggestions
+                });
+
+                const latestAlert = document.getElementById('latest-alert');
+                latestAlert.innerHTML = `<strong>${data.result} Attack</strong> detected via ${data.service}!`;
+                latestAlert.style.borderLeftColor = 'var(--danger)';
+                latestAlert.style.background = 'rgba(239, 68, 68, 0.1)';
+            }
+
+            // Update Counts and Chart
+            attackCounts[data.result] = (attackCounts[data.result] || 0) + 1;
+            attackChart.data.datasets[0].data = [
+                attackCounts['NORMAL'], 
+                attackCounts['DoS'], 
+                attackCounts['Probe'], 
+                attackCounts['R2L'], 
+                attackCounts['U2R']
+            ];
+            attackChart.update();
+
+            // Update Table
+            const tbody = document.getElementById('packet-body');
+            const row = tbody.insertRow(0);
+            const connection = `<span style="color: #818cf8;">${data.src_ip}</span> <i class="fas fa-arrow-right" style="font-size: 0.7rem; opacity: 0.5;"></i> <span style="color: #c084fc;">${data.dst_ip}</span>`;
+            
+            row.className = 'clickable-row';
+            row.onclick = () => showSolution(data);
+            
+            row.innerHTML = `
+                <td>${data.timestamp}</td>
+                <td style="font-size: 0.75rem; white-space: nowrap;">${connection}</td>
+                <td>${data.protocol}</td>
+                <td>${data.service}</td>
+                <td>${data.duration || 0}s</td>
+                <td><span class="badge badge-${data.result}">${data.result}</span></td>
+                <td>${data.confidence}</td>
+            `;
+
+            // Keep table size manageable
+            if (tbody.rows.length > 50) tbody.deleteRow(50);
+        });
+
+        // Modal Logic
+        function showSolution(data) {
+            const modal = document.getElementById('solutionModal');
+            const resultBadge = document.getElementById('modalResult');
+            const techGuide = document.getElementById('techGuide');
+            
+            // Set basic info
+            document.getElementById('modalTime').innerText = `Timestamp: ${data.timestamp || 'Real-time'}`;
+            document.getElementById('modalProto').innerText = data.protocol || '-';
+            document.getElementById('modalService').innerText = (data.service || '-').toUpperCase();
+            document.getElementById('modalSrcIP').innerText = data.src_ip || 'Internal';
+            document.getElementById('modalDstIP').innerText = data.dst_ip || 'Internal';
+            document.getElementById('modalSrc').innerText = data.src_bytes || '0';
+            document.getElementById('modalConfidence').innerText = data.confidence || '100.00%';
+            
+            // Result styling
+            resultBadge.innerText = data.result;
+            resultBadge.className = 'solution-badge ' + (data.result === 'NORMAL' ? 'green' : 'red');
+            techGuide.className = 'technician-guide ' + (data.result === 'NORMAL' ? '' : 'red');
+            
+            // Populating Suggestions
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = '';
+            const suggestions = data.suggestions || ["Traffic appears safe."];
+            suggestions.forEach(s => {
+                const li = document.createElement('li');
+                li.innerText = s;
+                list.appendChild(li);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('solutionModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('solutionModal');
+            if (event.target == modal) closeModal();
+        }
+
+        function showAnomalyDetails() {
+            // Reusing showSolution for the latest anomaly if available
+            if (sessionAnomalies.length > 0) {
+                showSolution(sessionAnomalies[sessionAnomalies.length - 1]);
+            } else {
+                alert("No anomalies detected in this session yet.");
+            }
+        }
+    </script>
+</body>
+</html>

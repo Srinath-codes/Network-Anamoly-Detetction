@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h2>Security Dashboard</h2>
+                <p class="description">Overview of recent network analysis and system health.</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/live_history" class="btn" style="background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid #22c55e;">Live Logs</a>
+                <a href="/demo_history" class="btn" style="background: rgba(129, 140, 248, 0.1); color: #818cf8; border: 1px solid #818cf8;">Demo Logs</a>
+                <a href="/detect" class="btn">Start New Analysis</a>
+            </div>
+        </div>
+
+        <div class="dashboard-stats" style="grid-template-columns: repeat(6, 1fr);">
+            <div class="stat-card">
+                <label>Total</label>
+                <div class="stat-value" style="font-size: 1.5rem;">{{ stats.total }}</div>
+            </div>
+            <div class="stat-card">
+                <label>DoS</label>
+                <div class="stat-value" style="color: var(--danger); font-size: 1.5rem;">{{ stats.DoS }}</div>
+            </div>
+            <div class="stat-card">
+                <label>Probe</label>
+                <div class="stat-value" style="color: #f59e0b; font-size: 1.5rem;">{{ stats.Probe }}</div>
+            </div>
+            <div class="stat-card">
+                <label>R2L</label>
+                <div class="stat-value" style="color: #a855f7; font-size: 1.5rem;">{{ stats.R2L }}</div>
+            </div>
+            <div class="stat-card">
+                <label>U2R</label>
+                <div class="stat-value" style="color: #ec4899; font-size: 1.5rem;">{{ stats.U2R }}</div>
+            </div>
+            <div class="stat-card">
+                <label>Normal</label>
+                <div class="stat-value" style="color: var(--success); font-size: 1.5rem;">{{ stats.NORMAL }}</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-container">
+                <h3>Anomaly Distribution</h3>
+                <canvas id="distributionChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Protocol Analysis</h3>
+                <canvas id="protocolChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass-card" style="text-align: left; padding: 2.5rem; margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0;">Prediction History</h3>
+                {% if history %}
+                <a href="/clear_history" class="btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="return confirm('⚠️ Are you sure you want to clear ALL scan history? This cannot be undone.')">
+                    🗑️ Clear All
+                </a>
+                {% endif %}
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Protocol</th>
+                            <th>Service</th>
+                            <th>Bytes (Src/Dst)</th>
+                            <th>Result</th>
+                            <th>Confidence</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if history %}
+                            {% for idx, item in history %}
+                            <tr class="clickable-row" data-item='{{ item | tojson }}' onclick="showSolution(JSON.parse(this.dataset.item))">
+                                <td>{{ item.timestamp }}</td>
+                                <td>{{ item.protocol.upper() }}</td>
+                                <td>{{ item.service.upper() }}</td>
+                                <td>{{ item.src_bytes|int }}/{{ item.dst_bytes|int }}</td>
+                                <td>
+                                    <span class="badge-small {{ 'green' if item.result == 'NORMAL' else 'red' }}">
+                                        {{ item.result }}
+                                    </span>
+                                </td>
+                                <td>{{ item.confidence }}</td>
+                                <td onclick="event.stopPropagation()">
+                                    <a href="/delete/{{ idx }}" style="color: var(--text-muted); text-decoration: none; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-muted)'" title="Delete record">
+                                        &times;
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">No scan history found. Start a new analysis to see results here.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        <div class="glass-card" style="text-align: left; padding: 2.5rem; margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0;">📂 Bulk Scan History</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">History of uploaded CSV files</p>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Upload Date</th>
+                            <th>Total Rows</th>
+                            <th>Attacks</th>
+                            <th>Normals</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if bulk_history %}
+                            {% for b_idx, file in bulk_history %}
+                            <tr class="clickable-row" onclick="window.location='/bulk_details/{{ b_idx }}'">
+                                <td style="color: var(--primary); font-weight: 600;">{{ file.filename }}</td>
+                                <td>{{ file.timestamp }}</td>
+                                <td>{{ file.total }}</td>
+                                <td style="color: var(--danger); font-weight: 700;">{{ file.attacks }}</td>
+                                <td style="color: var(--success);">{{ file.normals }}</td>
+                                <td onclick="event.stopPropagation()">
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <a href="/bulk_details/{{ b_idx }}" class="btn" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">View Data</a>
+                                        <a href="/delete_bulk/{{ b_idx }}" style="color: var(--text-muted); font-size: 1.1rem; text-decoration: none;" onclick="return confirm('Delete this file history?')" title="Remove file history">&times;</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No bulk files uploaded yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script id="chart-data-config" type="application/json">
+        {{ chart_data | tojson | safe }}
+    </script>
+
+    <script>
+        const chartData = JSON.parse(document.getElementById('chart-data-config').textContent);
+
+        // Doughnut Chart: Attack Distribution
+        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distCtx, {
+            type: 'doughnut',
+            data: {
+                labels: chartData.chart_labels,
+                datasets: [{
+                    data: chartData.chart_values,
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#a855f7', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            color: '#94a3b8',
+                            padding: 20,
+                            font: { size: 11 }
+                        } 
+                    } 
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Bar Chart: Protocol
+        const protoCtx = document.getElementById('protocolChart').getContext('2d');
+        new Chart(protoCtx, {
+            type: 'bar',
+            data: {
+                labels: chartData.proto_labels,
+                datasets: [{
+                    label: 'Scan Count',
+                    data: chartData.proto_values,
+                    backgroundColor: '#6366f1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+    </script>
+    
+    <!-- Solution Modal -->
+    <div id="solutionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Analysis Details</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <span id="modalResult" class="solution-badge">BATCH</span>
+                    <p id="modalTime" style="color: var(--text-muted); margin-top: 1rem;"></p>
+                </div>
+                
+                <div class="solution-grid">
+                    <div class="solution-item">
+                        <label>Protocol</label>
+                        <div id="modalProto">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Service</label>
+                        <div id="modalService">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Source Bytes</label>
+                        <div id="modalSrc">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Dest Bytes</label>
+                        <div id="modalDst">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>AI Confidence</label>
+                        <div id="modalConfidence" style="color: var(--primary);">-</div>
+                    </div>
+                </div>
+
+                <div id="techGuide" class="technician-guide">
+                    <h4><i class="fas fa-microchip"></i> Technician's Solution Guide</h4>
+                    <ul id="suggestionList">
+                        <!-- Suggestions here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSolution(data) {
+            const modal = document.getElementById('solutionModal');
+            const resultBadge = document.getElementById('modalResult');
+            const techGuide = document.getElementById('techGuide');
+            
+            // Set basic info
+            document.getElementById('modalTime').innerText = `Timestamp: ${data.timestamp || 'Real-time'}`;
+            document.getElementById('modalProto').innerText = data.protocol || data.protocol_type || '-';
+            document.getElementById('modalService').innerText = (data.service || '-').toUpperCase();
+            document.getElementById('modalSrc').innerText = data.src_bytes || '0';
+            document.getElementById('modalDst').innerText = data.dst_bytes || '0';
+            document.getElementById('modalConfidence').innerText = data.confidence || '100%';
+            
+            // Result styling
+            resultBadge.innerText = data.result;
+            resultBadge.className = 'solution-badge ' + (data.result === 'NORMAL' ? 'green' : 'red');
+            techGuide.className = 'technician-guide ' + (data.result === 'NORMAL' ? '' : 'red');
+            
+            // Populating Suggestions
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = '';
+            const suggestions = data.suggestions || ["No data available"];
+            suggestions.forEach(s => {
+                const li = document.createElement('li');
+                li.innerText = s;
+                list.appendChild(li);
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('solutionModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('solutionModal')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

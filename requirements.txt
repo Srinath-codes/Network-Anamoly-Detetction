@@ -1,0 +1,11 @@
+Flask
+Flask-SocketIO
+joblib
+numpy
+pandas
+scikit-learn
+xgboost
+lightgbm
+catboost
+scapy
+requests

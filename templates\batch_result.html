@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Bulk Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="glass-card">
+            <h2>Bulk Analysis Summary</h2>
+            <p class="description">We processed <strong>{{ total }}</strong> network logs from your file. Here is the threat distribution.</p>
+
+            <div class="dashboard-stats" style="margin-top: 2rem;">
+                <div class="stat-card">
+                    <label>Total Processed</label>
+                    <div class="stat-value">{{ total }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>Threats Found</label>
+                    <div class="stat-value" style="color: var(--danger);">{{ attacks }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>Normal Traffic</label>
+                    <div class="stat-value" style="color: var(--success);">{{ normals }}</div>
+                </div>
+            </div>
+
+            <div class="chart-container" style="height: 300px; margin-top: 2rem;">
+                <canvas id="batchChart"></canvas>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+
+            <div style="display: flex; gap: 1rem;">
+                <a href="/batch" class="btn" style="flex: 1; background: transparent; border: 1px solid var(--glass-border);">Upload Another</a>
+                <a href="/dashboard" class="btn" style="flex: 1;">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script id="batch-stats-data" type="application/json">
+        {
+            "normals": {{ normals }},
+            "DoS": {{ distribution.DoS }},
+            "Probe": {{ distribution.Probe }},
+            "R2L": {{ distribution.R2L }},
+            "U2R": {{ distribution.U2R }}
+        }
+    </script>
+
+    <script>
+        const stats = JSON.parse(document.getElementById('batch-stats-data').textContent);
+        const ctx = document.getElementById('batchChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Normal', 'DoS', 'Probe', 'R2L', 'U2R'],
+                datasets: [{
+                    data: [
+                        stats.normals, 
+                        stats.DoS, 
+                        stats.Probe, 
+                        stats.R2L, 
+                        stats.U2R
+                    ],
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#a855f7', '#ec4899'],
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+                },
+                cutout: '70%'
+            }
+        });
+    </script>
+</body>
+</html>

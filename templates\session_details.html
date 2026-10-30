@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Session Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/detect">Detection</a>
+            <a href="/batch">Bulk Upload</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 1200px;">
+        <div class="glass-card" style="text-align: left; padding: 2.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                <div>
+                    <a href="/{{ mode.lower() }}_history" class="btn" style="background: transparent; border: 1px solid var(--glass-border); margin-bottom: 1rem; display: inline-block;">&larr; Back to Sessions</a>
+                    <h2 style="margin-bottom: 0.5rem;">{{ mode }} Session #{{ id + 1 }}</h2>
+                    <p class="description">Started on: {{ session.timestamp }}</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">{{ session.total }}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Packets Captured</div>
+                </div>
+            </div>
+
+            <div class="dashboard-stats" style="grid-template-columns: repeat(6, 1fr); margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <label>Total</label>
+                    <div class="stat-value">{{ session.total }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>DoS</label>
+                    <div class="stat-value" style="color: var(--danger); font-size: 1.5rem;">{{ session.distribution.DoS }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>Probe</label>
+                    <div class="stat-value" style="color: #f59e0b; font-size: 1.5rem;">{{ session.distribution.Probe }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>R2L</label>
+                    <div class="stat-value" style="color: #a855f7; font-size: 1.5rem;">{{ session.distribution.R2L }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>U2R</label>
+                    <div class="stat-value" style="color: #ec4899; font-size: 1.5rem;">{{ session.distribution.U2R }}</div>
+                </div>
+                <div class="stat-card">
+                    <label>Normal</label>
+                    <div class="stat-value" style="color: var(--success); font-size: 1.5rem;">{{ session.normals }}</div>
+                </div>
+            </div>
+            
+            <div class="chart-grid" style="grid-template-columns: 1fr; margin-bottom: 2rem;">
+                <div class="chart-container" style="height: 300px; padding: 2rem;">
+                    <h3 style="text-align: center; margin-bottom: 1.5rem; color: #94a3b8;">{{ mode }} Session Distribution</h3>
+                    <canvas id="sessionDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: 0; border: none; background: transparent;">
+                <h3>Packet Logs</h3>
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Proto</th>
+                                <th>Service</th>
+                                <th>Result</th>
+                                <th>Conf</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in session.results %}
+                            <tr class="clickable-row" data-item='{{ item | tojson }}' onclick="showSolution(JSON.parse(this.dataset.item))">
+                                <td style="font-size: 0.8rem; color: var(--text-muted);">{{ item.timestamp }}</td>
+                                <td>{{ item.protocol.upper() }}</td>
+                                <td>{{ item.service.upper() }}</td>
+                                <td>
+                                    <span class="badge-small {{ 'green' if item.result == 'NORMAL' else 'red' }}">
+                                        {{ item.result }}
+                                    </span>
+                                </td>
+                                <td>{{ item.confidence }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solution Modal -->
+    <div id="solutionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-alt"></i> Packet Details</h2>
+                <span class="close-modal" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <span id="modalResult" class="solution-badge">PACKET</span>
+                    <p style="color: var(--text-muted); margin-top: 1rem;" id="modalTimestamp">-</p>
+                </div>
+                
+                <div class="solution-grid">
+                    <div class="solution-item">
+                        <label>Protocol</label>
+                        <div id="modalProto">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Service</label>
+                        <div id="modalService">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Source Bytes</label>
+                        <div id="modalSrc">-</div>
+                    </div>
+                    <div class="solution-item">
+                        <label>Dest Bytes</label>
+                        <div id="modalDst">-</div>
+                    </div>
+                </div>
+
+                <div id="techGuide" class="technician-guide">
+                    <h4>🛡️ Technician's Solution Guide</h4>
+                    <ul id="suggestionList">
+                        <!-- Suggestions -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chartRawData = {{ chart_data | tojson | safe }};
+        const ctx = document.getElementById('sessionDistributionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: chartRawData.labels,
+                datasets: [{
+                    data: chartRawData.values,
+                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#a855f7', '#ec4899', '#94a3b8'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#94a3b8', font: { size: 12 } }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        function showSolution(data) {
+            const modal = document.getElementById('solutionModal');
+            document.getElementById('modalTimestamp').innerText = data.timestamp;
+            document.getElementById('modalProto').innerText = data.protocol || '-';
+            document.getElementById('modalService').innerText = (data.service || '-').toUpperCase();
+            document.getElementById('modalSrc').innerText = data.src_bytes || '0';
+            document.getElementById('modalDst').innerText = data.dst_bytes || '0';
+            
+            const resultBadge = document.getElementById('modalResult');
+            resultBadge.innerText = data.result;
+            resultBadge.className = 'solution-badge ' + (data.result === 'NORMAL' ? 'green' : 'red');
+            document.getElementById('techGuide').className = 'technician-guide ' + (data.result === 'NORMAL' ? '' : 'red');
+            
+            const list = document.getElementById('suggestionList');
+            list.innerHTML = '';
+            (data.suggestions || ["No data recorded"]).forEach(s => {
+                const li = document.createElement('li');
+                li.innerText = s;
+                list.appendChild(li);
+            });
+            modal.style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('solutionModal').style.display = 'none'; }
+        window.onclick = function(event) { if (event.target == document.getElementById('solutionModal')) closeModal(); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnsembleGuard | Live Monitoring Sessions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EnsembleGuard</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/live">Live Monitor</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h2>Live Monitoring History</h2>
+                <p class="description">Review previous real-time network capture sessions.</p>
+            </div>
+            <div style="flex: 1; margin: 0 2rem; display: flex; gap: 1rem; justify-content: center;">
+                <a href="/demo_history" class="btn" style="background: rgba(255,255,255,0.05); color: var(--text-muted); padding: 0.5rem 1rem; border: 1px solid var(--glass-border);">Switch to Demo History</a>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/clear_live_history" class="btn" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid #f87171; padding: 0.5rem 1rem;" onclick="return confirm('⚠️ Clear ALL session history?')">🗑️ Clear All</a>
+                <a href="/live" class="btn">New Capture</a>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Start Time</th>
+                        <th>Packets</th>
+                        <th>Threats</th>
+                        <th>Normal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if history %}
+                        {% for index, session in history %}
+                        <tr>
+                            <td style="font-weight: bold; color: var(--primary);">#{{ index + 1 }}</td>
+                            <td>{{ session.timestamp }}</td>
+                            <td>{{ session.total }}</td>
+                            <td style="color: var(--danger); font-weight: bold;">{{ session.attacks }}</td>
+                            <td style="color: var(--success);">{{ session.normals }}</td>
+                            <td style="display: flex; gap: 0.5rem; justify-content: center;">
+                                <a href="/live_session/{{ index }}" class="btn-small">View Data</a>
+                                <a href="/delete_session/live/{{ index }}" class="btn-small" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid #f87171;" onclick="return confirm('Remove session #{{ index + 1 }}?')"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem;">No live sessions recorded. Start a scan to begin!</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
