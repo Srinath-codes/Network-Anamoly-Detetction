@@ -1,0 +1,22 @@
+# Trained model artifacts
+*_model.joblib
+scaler.joblib
+encoders.joblib
+feature_names.joblib
+target_encoder.joblib
+
+# Downloaded datasets and local analysis history
+KDDTrain+_20Percent.txt
+history.json
+bulk_history.json
+demo_history.json
+live_history.json
+
+# Python / editor / training output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+catboost_info/
+
