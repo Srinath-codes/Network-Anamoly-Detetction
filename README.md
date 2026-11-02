@@ -1,68 +1,54 @@
-IyBOZXR3b3JrIEFub21hbHkgRGV0ZWN0aW9uIERhc2hib2FyZAoKQSBGbGFz
-ayBkYXNoYm9hcmQgZm9yIGNsYXNzaWZ5aW5nIG5ldHdvcmsgdHJhZmZpYyBh
-cyBub3JtYWwgb3IgYXMgb25lIG9mIGZvdXIgYnJvYWQgYXR0YWNrIGdyb3Vw
-czogRG9TLCBQcm9iZSwgUjJMLCBhbmQgVTJSLiBUaGUgYXBwbGljYXRpb24g
-Y29tYmluZXMgUmFuZG9tIEZvcmVzdCwgWEdCb29zdCwgTGlnaHRHQk0sIGFu
-ZCBDYXRCb29zdCBwcm9iYWJpbGl0aWVzIGFuZCBwcm92aWRlcyBtYW51YWws
-IENTViBiYXRjaCwgZGVtbywgYW5kIHBhY2tldC1jYXB0dXJlIHdvcmtmbG93
-cy4KCiMjIFdoYXQgaXQgZG9lcwoKLSBDbGFzc2lmaWVzIGNvbm5lY3Rpb24g
-ZmVhdHVyZXMgdXNpbmcgYSBzb2Z0LXZvdGluZyBlbnNlbWJsZS4KLSBTaG93
-cyBjb25maWRlbmNlLCBwZXItbW9kZWwgdm90ZXMsIGFuZCBzdWdnZXN0ZWQg
-ZGVmZW5zaXZlIGZvbGxvdy11cC4KLSBTdXBwb3J0cyBiYXRjaCBDU1YgYW5h
-bHlzaXMgYW5kIHN5bnRoZXRpYyBzYW1wbGUgdHJhZmZpYy4KLSBQcm92aWRl
-cyBhIGxpdmUtY2FwdHVyZSBpbnRlcmZhY2UgdXNpbmcgU2NhcHkgd2hlcmUg
-cGFja2V0IGNhcHR1cmUgaXMgYXZhaWxhYmxlLgotIEtlZXBzIGFuYWx5c2lz
-IGhpc3RvcnkgaW4gbG9jYWwgSlNPTiBmaWxlcyBjcmVhdGVkIGF0IHJ1bnRp
-bWUuCgojIyBIb3cgdGhlIG1vZGVsIGlzIHRyYWluZWQKCmB0cmFpbl9tb2Rl
-bC5weWAgZG93bmxvYWRzIHRoZSBOU0wtS0REIDIwJSB0cmFpbmluZyBmaWxl
-LCBncm91cHMgaXRzIGxhYmVscyBpbnRvIGZpdmUgY2F0ZWdvcmllcywgdHJh
-aW5zIGZvdXIgY2xhc3NpZmllcnMsIGFuZCB3cml0ZXMgdGhlIG1vZGVsIGFu
-ZCBwcmVwcm9jZXNzaW5nIGFydGlmYWN0cyBleHBlY3RlZCBieSB0aGUgZGFz
-aGJvYXJkLiBUaGUgdHJhaW5pbmcgZGF0YSBhbmQgZ2VuZXJhdGVkIG1vZGVs
-IGZpbGVzIGFyZSBpbnRlbnRpb25hbGx5IG5vdCBjb21taXR0ZWQuCgpgYGBi
-YXNoCnB5dGhvbiAtbSB2ZW52IC52ZW52CiMgV2luZG93cyBQb3dlclNoZWxs
-Ci5cLnZlbnZcU2NyaXB0c1xBY3RpdmF0ZS5wczEKIyBtYWNPUy9MaW51eAoj
-IHNvdXJjZSAudmVudi9iaW4vYWN0aXZhdGUKcHl0aG9uIC1tIHBpcCBpbnN0
-YWxsIC1yIHJlcXVpcmVtZW50cy50eHQKcHl0aG9uIHRyYWluX21vZGVsLnB5
-CnB5dGhvbiBhcHAucHkKYGBgCgpPcGVuIGh0dHA6Ly8xMjcuMC4wLjE6NTAw
-MCBhZnRlciB0aGUgc2VydmVyIHN0YXJ0cy4KCiMjIEJhdGNoIGlucHV0CgpV
-c2UgYHNhbXBsZV9idWxrX3RyYWZmaWMuY3N2YCBhcyBhIHNtYWxsIGV4YW1w
-bGUgb2YgdGhlIGV4cGVjdGVkIGZlYXR1cmUgY29sdW1ucy4gVGhlIGV4YWN0
-IGZlYXR1cmUgbGlzdCBpcyBzYXZlZCBhcyBgZmVhdHVyZV9uYW1lcy5qb2Js
-aWJgIGR1cmluZyB0cmFpbmluZy4gYGdlbmVyYXRlX3NhbXBsZS5weWAgY2Fu
-IGFsc28gY3JlYXRlIGEgcmFuZG9taXplZCBDU1YgYWZ0ZXIgdHJhaW5pbmcu
-CgojIyBJbXBvcnRhbnQgbGltaXRhdGlvbnMKCi0gVGhlIGxhYmVscyBhbmQg
-bW9kZWwgY29tZSBmcm9tIE5TTC1LREQsIGFuIG9sZGVyIGJlbmNobWFyayBk
-YXRhc2V0LiBSZXN1bHRzIG9uIHRoaXMgZGF0YXNldCBkbyBub3QgZXN0YWJs
-aXNoIGVmZmVjdGl2ZW5lc3MgYWdhaW5zdCBjdXJyZW50IG5ldHdvcmsgdHJh
-ZmZpYy4KLSBMaXZlIHBhY2tldCBmZWF0dXJlcyBhcmUgYXBwcm94aW1hdGlv
-bnMgZGVyaXZlZCBmcm9tIGluZGl2aWR1YWwgcGFja2V0cyBhbmQgc2hvcnQg
-cm9sbGluZyB3aW5kb3dzOyB0aGV5IGFyZSBub3QgYSBmYWl0aGZ1bCByZWNv
-bnN0cnVjdGlvbiBvZiBhbGwgTlNMLUtERCBjb25uZWN0aW9uIGZlYXR1cmVz
-LgotIFByZWRpY3Rpb25zIGFuZCByZW1lZGlhdGlvbiBzdWdnZXN0aW9ucyBh
-cmUgZGVtb25zdHJhdGlvbnMuIERvIG5vdCB1c2UgdGhlbSBhcyBhIHByb2R1
-Y3Rpb24gaW50cnVzaW9uIGRldGVjdGlvbiBvciBpbmNpZGVudCByZXNwb25z
-ZSBzeXN0ZW0uCi0gUGFja2V0IGNhcHR1cmUgbWF5IHJlcXVpcmUgYWRtaW5p
-c3RyYXRvci9yb290IHByaXZpbGVnZXMsIGEgc3VwcG9ydGVkIGNhcHR1cmUg
-ZHJpdmVyLCBhbmQgYXV0aG9yaXphdGlvbiBmb3IgdGhlIG5ldHdvcmsgYmVp
-bmcgbW9uaXRvcmVkLiBVc2Ugb25seSBvbiBuZXR3b3JrcyB5b3UgYXJlIGFs
-bG93ZWQgdG8gaW5zcGVjdC4KLSBUaGUgdHJhaW5pbmcgc2NyaXB0IGV2YWx1
-YXRlcyBvbiBhIHJhbmRvbSBzcGxpdCBvZiB0aGUgZGF0YXNldDsgaXQgZG9l
-cyBub3QgcmVwb3J0IGEgaGVsZC1vdXQgdGltZS1iYXNlZCBvciBjcm9zcy1k
-YXRhc2V0IGV2YWx1YXRpb24uCgojIyBQcm9qZWN0IGZpbGVzCgotIGBhcHAu
-cHlgIOKAlCBGbGFzayByb3V0ZXMsIG1vZGVsIGxvYWRpbmcsIHByZWRpY3Rp
-b24gYW5kIGRhc2hib2FyZCB3b3JrZmxvd3MKLSBgc25pZmZlci5weWAg4oCU
-IHBhY2tldCBjYXB0dXJlIGFuZCBhcHByb3hpbWF0ZSBmZWF0dXJlIGV4dHJh
-Y3Rpb24KLSBgdHJhaW5fbW9kZWwucHlgIOKAlCBkYXRhc2V0IGRvd25sb2Fk
-LCBwcmVwcm9jZXNzaW5nIGFuZCBtb2RlbCB0cmFpbmluZwotIGBnZW5lcmF0
-ZV9zYW1wbGUucHlgIOKAlCByYW5kb21pemVkIGJhdGNoIENTViBnZW5lcmF0
-aW9uCi0gYHRlbXBsYXRlcy9gLCBgc3RhdGljL2Ag4oCUIGRhc2hib2FyZCBp
-bnRlcmZhY2UKLSBgYmFja2VuZF9hcmNoaXRlY3R1cmUuaHRtbGAg4oCUIGFy
-Y2hpdGVjdHVyZSBvdmVydmlldwoKIyMgUnVudGltZSBmaWxlcwoKTW9kZWwg
-YXJ0aWZhY3RzIGFuZCBhbmFseXNpcyBoaXN0b3JpZXMgYXJlIGdlbmVyYXRl
-ZCBsb2NhbGx5LiBUaGV5IGFyZSBleGNsdWRlZCBmcm9tIHZlcnNpb24gY29u
-dHJvbCBieSBgLmdpdGlnbm9yZWAuDQoNCg==
+# Network Anomaly Detection Dashboard
 
-## Author
+A Flask dashboard for classifying network traffic as normal or as one of four broad attack groups: DoS, Probe, R2L, and U2R. The application combines Random Forest, XGBoost, LightGBM, and CatBoost probabilities and provides manual, CSV batch, demo, and packet-capture workflows.
 
-Srinath S
+## What it does
+
+- Classifies connection features using a soft-voting ensemble.
+- Shows confidence, per-model votes, and suggested defensive follow-up.
+- Supports batch CSV analysis and synthetic sample traffic.
+- Provides a live-capture interface using Scapy where packet capture is available.
+- Keeps analysis history in local JSON files created at runtime.
+
+## How the model is trained
+
+`train_model.py` downloads the NSL-KDD 20% training file, groups its labels into five categories, trains four classifiers, and writes the model and preprocessing artifacts expected by the dashboard. The training data and generated model files are intentionally not committed.
+
+```bash
+python -m venv .venv
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+# macOS/Linux
+# source .venv/bin/activate
+python -m pip install -r requirements.txt
+python train_model.py
+python app.py
+```
+
+Open http://127.0.0.1:5000 after the server starts.
+
+## Batch input
+
+Use `sample_bulk_traffic.csv` as a small example of the expected feature columns. The exact feature list is saved as `feature_names.joblib` during training. `generate_sample.py` can also create a randomized CSV after training.
+
+## Important limitations
+
+- The labels and model come from NSL-KDD, an older benchmark dataset. Results on this dataset do not establish effectiveness against current network traffic.
+- Live packet features are approximations derived from individual packets and short rolling windows; they are not a faithful reconstruction of all NSL-KDD connection features.
+- Predictions and remediation suggestions are demonstrations. Do not use them as a production intrusion detection or incident response system.
+- Packet capture may require administrator/root privileges, a supported capture driver, and authorization for the network being monitored. Use only on networks you are allowed to inspect.
+- The training script evaluates on a random split of the dataset; it does not report a held-out time-based or cross-dataset evaluation.
+
+## Project files
+
+- `app.py` — Flask routes, model loading, prediction and dashboard workflows
+- `sniffer.py` — packet capture and approximate feature extraction
+- `train_model.py` — dataset download, preprocessing and model training
+- `generate_sample.py` — randomized batch CSV generation
+- `templates/`, `static/` — dashboard interface
+- `backend_architecture.html` — architecture overview
+
+## Runtime files
+
+Model artifacts and analysis histories are generated locally. They are excluded from version control by `.gitignore`.
+
